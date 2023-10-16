@@ -3,6 +3,7 @@ package field
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -27,13 +28,15 @@ var (
 
 // ======================== raw field =======================
 
-func NewRaw(table, column string, opts ...Option) Field {
-	col := clause.Column{Table: table, Name: column}
-	col.Raw = true
-	for _, opt := range opts {
-		col = opt(col)
-	}
-	return Field{expr: expr{col: col}}
+func NewRaw(raw interface{}, alias string) Field {
+	return Field{expr: expr{e: clause.Expr{
+		SQL:  "? AS ?",
+		Vars: []interface{}{raw, clause.Column{Name: alias}},
+	}}}
+}
+
+func RawNowUnix(alias string) Field {
+	return NewRaw(time.Now().Unix(), alias)
 }
 
 // ======================== generic field =======================

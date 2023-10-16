@@ -852,6 +852,16 @@ func (d *DO) AddError(err error) error {
 	return d.underlyingDB().AddError(err)
 }
 
+func (d *DO) InsertInto(table schema.Tabler, columns ...field.Expr) (ResultInfo, error) {
+	colExpressions := make([]string, len(columns))
+	for index, column := range columns {
+		sql := column.BuildColumn(d.db.Statement, field.WithoutQuote).String()
+		colExpressions[index] = sql
+	}
+	result := d.underlyingDB().InsertInto(table, colExpressions...)
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+}
+
 func toColExprFullName(stmt *gorm.Statement, columns ...field.Expr) []string {
 	return buildColExpr(stmt, columns, field.WithAll)
 }
@@ -870,7 +880,7 @@ func buildColExpr(stmt *gorm.Statement, cols []field.Expr, opts ...field.BuildOp
 		case clause.Column:
 			results[i] = c.BuildColumn(stmt, opts...).String()
 		case clause.Expression:
-			sql, args := c.BuildWithArgs(stmt)
+			sql, args := c.BuildWithArgs(stmt, nil)
 			results[i] = stmt.Dialector.Explain(sql.String(), args...)
 		}
 	}
@@ -884,7 +894,7 @@ func buildExpr4Select(stmt *gorm.Statement, exprs ...field.Expr) (query string, 
 
 	var queryItems []string
 	for _, e := range exprs {
-		sql, vars := e.BuildWithArgs(stmt)
+		sql, vars := e.BuildWithArgs(stmt, args)
 		queryItems = append(queryItems, sql.String())
 		args = append(args, vars...)
 	}

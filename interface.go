@@ -86,6 +86,7 @@ type Dao interface {
 	Scan(dest interface{}) error
 	Pluck(column field.Expr, dest interface{}) error
 	ScanRows(rows *sql.Rows, dest interface{}) error
+	InsertInto(table schema.Tabler, columns ...field.Expr) (info ResultInfo, err error)
 
 	AddError(err error) error
 }

@@ -203,6 +203,7 @@ type I{{.ModelStructName}}Do interface {
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Scan(result interface{}) (err error)
 	Returning(value interface{}, columns ...string) I{{.ModelStructName}}Do
+	InsertInto(table schema.Tabler, columns ...field.Expr) (info gen.ResultInfo, err error)
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 

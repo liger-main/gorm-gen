@@ -2,6 +2,8 @@ module gorm.io/gen
 
 go 1.18
 
+replace gorm.io/gorm => ../gorm
+
 require (
 	golang.org/x/tools v0.6.0
 	gopkg.in/yaml.v3 v3.0.1

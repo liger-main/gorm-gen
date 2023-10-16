@@ -26,7 +26,7 @@ type Expr interface {
 	As(alias string) Expr
 	IColumnName
 	BuildColumn(*gorm.Statement, ...BuildOpt) sql
-	BuildWithArgs(*gorm.Statement) (query sql, args []interface{})
+	BuildWithArgs(*gorm.Statement, []interface{}) (query sql, args []interface{})
 	RawExpr() expression
 
 	// col operate expression
@@ -130,13 +130,14 @@ func (e expr) Build(builder clause.Builder) {
 	e.e.Build(builder)
 }
 
-func (e expr) BuildWithArgs(stmt *gorm.Statement) (sql, []interface{}) {
+func (e expr) BuildWithArgs(stmt *gorm.Statement, vars []interface{}) (sql, []interface{}) {
 	if e.e == nil {
 		return sql(e.BuildColumn(stmt, WithAll)), nil
 	}
-	newStmt := &gorm.Statement{DB: stmt.DB, Table: stmt.Table, Schema: stmt.Schema}
+	newStmt := &gorm.Statement{DB: stmt.DB, Table: stmt.Table, Schema: stmt.Schema, Vars: vars}
 	e.e.Build(newStmt)
-	return sql(newStmt.SQL.String()), newStmt.Vars
+	newVars := newStmt.Vars[len(vars):]
+	return sql(newStmt.SQL.String()), newVars
 }
 
 func (e expr) RawExpr() expression {
