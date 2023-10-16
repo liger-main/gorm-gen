@@ -418,3 +418,7 @@ func (e expr) field(value interface{}) expr {
 func (e expr) sum() expr {
 	return e.setE(clause.Expr{SQL: "SUM(?)", Vars: []interface{}{e.RawExpr()}})
 }
+
+func (e expr) isDistinctFrom(other Expr) expr {
+	return e.setE(clause.Expr{SQL: "? IS DISTINCT FROM ?", Vars: []interface{}{e.RawExpr(), other.RawExpr()}})
+}

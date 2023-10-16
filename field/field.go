@@ -70,6 +70,10 @@ func (field Field) IfNull(value driver.Valuer) Expr {
 	return field.ifNull(value)
 }
 
+func (field Field) IsDistinctFrom(other Expr) Expr {
+	return field.isDistinctFrom(other)
+}
+
 // Field ...
 func (field Field) Field(value []interface{}) Expr {
 	return field.field(value)
