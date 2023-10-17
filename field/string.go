@@ -155,6 +155,13 @@ func (field String) toSlice(values []string) []interface{} {
 	return slice
 }
 
+func (field String) MD5() String {
+	return String{expr{e: clause.Expr{
+		SQL:  "MD5(?)",
+		Vars: []interface{}{field.RawExpr()},
+	}}}
+}
+
 // Bytes []byte type field
 type Bytes String
 

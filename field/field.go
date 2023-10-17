@@ -74,6 +74,13 @@ func (field Field) IsDistinctFrom(other Expr) Expr {
 	return field.isDistinctFrom(other)
 }
 
+func (field Field) MD5() Expr {
+	return String{expr{e: clause.Expr{
+		SQL:  "MD5(?)",
+		Vars: []interface{}{field.RawExpr()},
+	}}}
+}
+
 // Field ...
 func (field Field) Field(value []interface{}) Expr {
 	return field.field(value)

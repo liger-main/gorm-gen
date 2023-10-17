@@ -193,6 +193,7 @@ type I{{.ModelStructName}}Do interface {
 	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
+	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
 	Attrs(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	Assign(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	Joins(fields ...field.RelationField) I{{.ModelStructName}}Do

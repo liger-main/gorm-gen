@@ -21,18 +21,18 @@ func checkConds(conds []clause.Expression) error {
 
 var banClauses = map[string]bool{
 	// "INSERT": true,
-	"VALUES": true,
+	// "VALUES": true,
 	// "ON CONFLICT": true,
-	"SELECT":   true,
-	"FROM":     true,
-	"WHERE":    true,
-	"GROUP BY": true,
-	"ORDER BY": true,
-	"LIMIT":    true,
+	//"SELECT":   true,
+	//"FROM":     true,
+	//"WHERE":    true,
+	//"GROUP BY": true,
+	//"ORDER BY": true,
+	//"LIMIT":    true,
 	// "FOR":      true,
-	"UPDATE": true,
-	"SET":    true,
-	"DELETE": true,
+	//"UPDATE": true,
+	//"SET":    true,
+	//"DELETE": true,
 }
 
 // CheckClause check security of Expression

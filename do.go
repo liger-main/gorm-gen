@@ -571,6 +571,45 @@ func (d *DO) UpdateFrom(q SubQuery) Dao {
 	return d.getInstance(d.db.Clauses(clause.Update{Table: clause.Table{Name: tableName.String(), Raw: true}}))
 }
 
+func (d *DO) clauseToSql(clause clause.Interface, truncateClauseName bool) string {
+	q := d.WithContext(context.TODO()).Clauses(clause)
+	stmt := q.underlyingDB().Statement
+	stmt.Build(clause.Name())
+	s := q.underlyingDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx.Exec(stmt.SQL.String(), stmt.Vars)
+	})
+	if truncateClauseName {
+		s, _ = strings.CutPrefix(s, clause.Name())
+		s = strings.TrimSpace(s)
+	}
+	return s
+}
+
+func (d *DO) FromValues(alias string, columns []string, values [][]interface{}) Dao {
+
+	valuesSql := d.clauseToSql(clause.Values{Values: values}, false)
+
+	var tableName strings.Builder
+	tableName.WriteString("( ")
+	tableName.WriteString(valuesSql)
+	tableName.WriteString(" )")
+
+	tableName.WriteString(" AS ")
+	d.db.Statement.QuoteTo(&tableName, alias)
+
+	tableName.WriteString("(")
+	parsedColumns := make([]clause.Column, len(columns))
+	for index, column := range columns {
+		parsedColumns[index] = clause.Column{Name: column}
+	}
+	columnsList := d.clauseToSql(clause.Select{Columns: parsedColumns}, true)
+	tableName.WriteString(columnsList)
+	tableName.WriteString(")")
+
+	instance := d.getInstance(d.db.Clauses(clause.From{Tables: []clause.Table{{Name: tableName.String(), Raw: true}}}))
+	return instance
+}
+
 func getFromClause(db *gorm.DB) *clause.From {
 	if db == nil || db.Statement == nil {
 		return &clause.From{}
