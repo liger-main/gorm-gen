@@ -194,6 +194,7 @@ type I{{.ModelStructName}}Do interface {
 	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
+	OnUniqueConflict(model interface{}, updates []gen.OnConflictUpdate) gen.Dao
 	Attrs(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	Assign(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	Joins(fields ...field.RelationField) I{{.ModelStructName}}Do

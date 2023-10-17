@@ -40,6 +40,8 @@ type Expr interface {
 	BeCond() interface{}
 	CondError() error
 
+	Excluded() Expr
+
 	expression() clause.Expression
 }
 
@@ -82,6 +84,27 @@ func (e expr) expression() clause.Expression {
 }
 
 func (e expr) ColumnName() sql { return sql(e.col.Name) }
+
+func (e expr) Excluded() Expr {
+	excl := expr{
+		col:       e.col,
+		e:         e.e,
+		buildOpts: e.buildOpts,
+	}
+	if excl.col.Name != "" {
+		excl.col.Table = "excluded"
+	}
+	if ee, ok := excl.e.(clause.Expr); ok {
+		for index, variable := range ee.Vars {
+			if col, ok := variable.(clause.Column); ok {
+				col.Table = "excluded"
+				ee.Vars[index] = col
+			}
+		}
+		excl.e = ee
+	}
+	return excl
+}
 
 // BuildOpt build option
 type BuildOpt uint

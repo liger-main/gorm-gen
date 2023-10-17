@@ -4,14 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"reflect"
-	"strings"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
+	"reflect"
+	"strings"
 
+	"golang.org/x/exp/maps"
 	"gorm.io/gen/field"
 	"gorm.io/gen/helper"
 )
@@ -608,6 +608,45 @@ func (d *DO) FromValues(alias string, columns []string, values [][]interface{}) 
 
 	instance := d.getInstance(d.db.Clauses(clause.From{Tables: []clause.Table{{Name: tableName.String(), Raw: true}}}))
 	return instance
+}
+
+type OnConflictUpdate struct {
+	Field field.Expr
+	Value interface{}
+}
+
+func (d *DO) OnUniqueConflict(model interface{}, updates []OnConflictUpdate) Dao {
+	uqs, err := d.underlyingDB().UniqueConstraints(model)
+	if err != nil {
+		return d.withError(err)
+	}
+	if len(uqs) != 1 {
+		return d.withError(fmt.Errorf("cannot automatically detect unique constraint fields for %T", model))
+	}
+	uqCols := uqs[maps.Keys(uqs)[0]]
+
+	columns := make([]clause.Column, len(uqCols))
+	for i, col := range uqCols {
+		columns[i] = clause.Column{Name: col}
+	}
+
+	assignments := make([]clause.Assignment, len(updates))
+	index := 0
+	for _, update := range updates {
+		if fieldExpr, ok := update.Value.(field.Expr); ok {
+			update.Value = fieldExpr.Excluded()
+		}
+		assignments[index] = clause.Assignment{
+			Column: clause.Column{Name: update.Field.ColumnName().String()},
+			Value:  update.Value,
+		}
+		index++
+	}
+
+	return d.getInstance(d.db.Clauses(clause.OnConflict{
+		Columns:   columns,
+		DoUpdates: assignments,
+	}))
 }
 
 func getFromClause(db *gorm.DB) *clause.From {

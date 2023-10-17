@@ -87,6 +87,8 @@ type Dao interface {
 	Pluck(column field.Expr, dest interface{}) error
 	ScanRows(rows *sql.Rows, dest interface{}) error
 	InsertInto(table schema.Tabler, columns ...field.Expr) (info ResultInfo, err error)
+	FromValues(alias string, columns []string, values [][]interface{}) Dao
+	OnUniqueConflict(model interface{}, updates []OnConflictUpdate) Dao
 
 	AddError(err error) error
 }
