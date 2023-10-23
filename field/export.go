@@ -48,6 +48,10 @@ func Column(table, column string, opts ...Option) Field {
 	return Field{expr: expr{col: col}}
 }
 
+func GenRandomUUID() Field {
+	return Field{expr: expr{e: clause.Expr{SQL: "gen_random_uuid()"}}}
+}
+
 // ======================== generic field =======================
 
 // NewField create new field
