@@ -185,13 +185,13 @@ type I{{.ModelStructName}}Do interface {
 	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*{{.StructInfo.Package}}.{{.StructInfo.Type}}, err error)
 	FindInBatches(result *[]*{{.StructInfo.Package}}.{{.StructInfo.Type}}, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*{{.StructInfo.Package}}.{{.StructInfo.Type}}) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
+	Delete(...*{{.StructInfo.Package}}.{{.StructInfo.Type}}) gen.ResultInfo
+	Update(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateSimple(columns ...field.AssignExpr) gen.ResultInfo
+	Updates(value interface{}) gen.ResultInfo
+	UpdateColumn(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateColumnSimple(columns ...field.AssignExpr) gen.ResultInfo
+	UpdateColumns(value interface{}) gen.ResultInfo
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
 	OnUniqueConflict(model interface{}, updates []gen.OnConflictUpdate) gen.Dao
@@ -205,7 +205,7 @@ type I{{.ModelStructName}}Do interface {
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Scan(result interface{}) (err error)
 	Returning(value interface{}, columns ...string) I{{.ModelStructName}}Do
-	InsertInto(table schema.Tabler, columns ...field.Expr) (info gen.ResultInfo, err error)
+	InsertInto(table schema.Tabler, columns ...field.Expr) gen.ResultInfo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 

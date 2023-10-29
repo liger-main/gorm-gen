@@ -340,7 +340,7 @@ func (u userDo) Scan(result interface{}) (err error) {
 	return u.DO.Scan(result)
 }
 
-func (u userDo) Delete(models ...*model.User) (result gen.ResultInfo, err error) {
+func (u userDo) Delete(models ...*model.User) gen.ResultInfo {
 	return u.DO.Delete(models)
 }
 

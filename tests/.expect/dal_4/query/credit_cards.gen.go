@@ -161,13 +161,13 @@ type ICreditCardDo interface {
 	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.CreditCard, err error)
 	FindInBatches(result *[]*model.CreditCard, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.CreditCard) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
+	Delete(...*model.CreditCard) gen.ResultInfo
+	Update(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateSimple(columns ...field.AssignExpr) gen.ResultInfo
+	Updates(value interface{}) gen.ResultInfo
+	UpdateColumn(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateColumnSimple(columns ...field.AssignExpr) gen.ResultInfo
+	UpdateColumns(value interface{}) gen.ResultInfo
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	Attrs(attrs ...field.AssignExpr) ICreditCardDo
 	Assign(attrs ...field.AssignExpr) ICreditCardDo
@@ -404,7 +404,7 @@ func (c creditCardDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c creditCardDo) Delete(models ...*model.CreditCard) (result gen.ResultInfo, err error) {
+func (c creditCardDo) Delete(models ...*model.CreditCard) gen.ResultInfo {
 	return c.DO.Delete(models)
 }
 

@@ -168,13 +168,13 @@ type IUserDo interface {
 	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.User, err error)
 	FindInBatches(result *[]*model.User, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.User) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
+	Delete(...*model.User) gen.ResultInfo
+	Update(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateSimple(columns ...field.AssignExpr) gen.ResultInfo
+	Updates(value interface{}) gen.ResultInfo
+	UpdateColumn(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateColumnSimple(columns ...field.AssignExpr) gen.ResultInfo
+	UpdateColumns(value interface{}) gen.ResultInfo
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	Attrs(attrs ...field.AssignExpr) IUserDo
 	Assign(attrs ...field.AssignExpr) IUserDo
@@ -411,7 +411,7 @@ func (u userDo) Scan(result interface{}) (err error) {
 	return u.DO.Scan(result)
 }
 
-func (u userDo) Delete(models ...*model.User) (result gen.ResultInfo, err error) {
+func (u userDo) Delete(models ...*model.User) gen.ResultInfo {
 	return u.DO.Delete(models)
 }
 

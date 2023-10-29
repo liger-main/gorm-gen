@@ -147,13 +147,13 @@ type IBankDo interface {
 	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Bank, err error)
 	FindInBatches(result *[]*model.Bank, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.Bank) (info gen.ResultInfo, err error)
-	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	Updates(value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
-	UpdateColumns(value interface{}) (info gen.ResultInfo, err error)
+	Delete(...*model.Bank) gen.ResultInfo
+	Update(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateSimple(columns ...field.AssignExpr) gen.ResultInfo
+	Updates(value interface{}) gen.ResultInfo
+	UpdateColumn(column field.Expr, value interface{}) gen.ResultInfo
+	UpdateColumnSimple(columns ...field.AssignExpr) gen.ResultInfo
+	UpdateColumns(value interface{}) gen.ResultInfo
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	Attrs(attrs ...field.AssignExpr) IBankDo
 	Assign(attrs ...field.AssignExpr) IBankDo
@@ -390,7 +390,7 @@ func (b bankDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b bankDo) Delete(models ...*model.Bank) (result gen.ResultInfo, err error) {
+func (b bankDo) Delete(models ...*model.Bank) gen.ResultInfo {
 	return b.DO.Delete(models)
 }
 

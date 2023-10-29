@@ -397,7 +397,7 @@ func (p personDo) Scan(result interface{}) (err error) {
 	return p.DO.Scan(result)
 }
 
-func (p personDo) Delete(models ...*model.Person) (result gen.ResultInfo, err error) {
+func (p personDo) Delete(models ...*model.Person) gen.ResultInfo {
 	return p.DO.Delete(models)
 }
 

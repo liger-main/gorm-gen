@@ -321,7 +321,7 @@ func (c customerDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c customerDo) Delete(models ...*model.Customer) (result gen.ResultInfo, err error) {
+func (c customerDo) Delete(models ...*model.Customer) gen.ResultInfo {
 	return c.DO.Delete(models)
 }
 

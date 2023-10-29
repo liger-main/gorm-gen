@@ -250,11 +250,11 @@ func ({{.S}} {{.QueryStructName}}Do) Scan(result interface{}) (err error) {
 	return {{.S}}.DO.Scan(result)
 }
 
-func ({{.S}} {{.QueryStructName}}Do) Delete(models ...*{{.StructInfo.Package}}.{{.StructInfo.Type}}) (result gen.ResultInfo, err error) {
+func ({{.S}} {{.QueryStructName}}Do) Delete(models ...*{{.StructInfo.Package}}.{{.StructInfo.Type}}) gen.ResultInfo {
 	return {{.S}}.DO.Delete(models)
 }
 
-func ({{.S}} {{.QueryStructName}}Do) InsertInto(table schema.Tabler, columns ...field.Expr) (result gen.ResultInfo, err error) {
+func ({{.S}} {{.QueryStructName}}Do) InsertInto(table schema.Tabler, columns ...field.Expr) gen.ResultInfo {
 	return {{.S}}.DO.InsertInto(table, columns...)
 }
 

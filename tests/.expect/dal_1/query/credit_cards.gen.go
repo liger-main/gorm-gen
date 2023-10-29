@@ -343,7 +343,7 @@ func (c creditCardDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c creditCardDo) Delete(models ...*model.CreditCard) (result gen.ResultInfo, err error) {
+func (c creditCardDo) Delete(models ...*model.CreditCard) gen.ResultInfo {
 	return c.DO.Delete(models)
 }
 

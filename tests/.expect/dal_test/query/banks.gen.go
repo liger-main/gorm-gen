@@ -318,7 +318,7 @@ func (b bankDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b bankDo) Delete(models ...*model.Bank) (result gen.ResultInfo, err error) {
+func (b bankDo) Delete(models ...*model.Bank) gen.ResultInfo {
 	return b.DO.Delete(models)
 }
 
