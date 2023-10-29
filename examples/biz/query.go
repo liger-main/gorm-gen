@@ -33,8 +33,8 @@ func Query(ctx context.Context) {
 	catchError("Find", err)
 	fmt.Printf("got %+v\n", dataArray)
 
-	info, err := do.Where(t.ID.Eq(1)).UpdateSimple(t.Age.Add(1))
-	catchError("Update", err)
+	info := do.Where(t.ID.Eq(1)).UpdateSimple(t.Age.Add(1))
+	catchError("Update", info.Error)
 	fmt.Printf("got %+v\n", info)
 }
 

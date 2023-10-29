@@ -751,7 +751,7 @@ func (d *DO) FirstOrCreate() (result interface{}, err error) {
 }
 
 // Update ...
-func (d *DO) Update(column field.Expr, value interface{}) (info ResultInfo, err error) {
+func (d *DO) Update(column field.Expr, value interface{}) ResultInfo {
 	tx := d.db.Model(d.newResultPointer())
 	columnStr := column.BuildColumn(d.db.Statement, field.WithoutQuote).String()
 
@@ -764,21 +764,21 @@ func (d *DO) Update(column field.Expr, value interface{}) (info ResultInfo, err 
 	default:
 		result = tx.Update(columnStr, value)
 	}
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // UpdateSimple ...
-func (d *DO) UpdateSimple(columns ...field.AssignExpr) (info ResultInfo, err error) {
+func (d *DO) UpdateSimple(columns ...field.AssignExpr) ResultInfo {
 	if len(columns) == 0 {
-		return
+		return ResultInfo{}
 	}
 
 	result := d.db.Model(d.newResultPointer()).Clauses(d.assignSet(columns)).Omit("*").Updates(map[string]interface{}{})
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // Updates ...
-func (d *DO) Updates(value interface{}) (info ResultInfo, err error) {
+func (d *DO) Updates(value interface{}) ResultInfo {
 	var rawTyp, valTyp reflect.Type
 
 	rawTyp = reflect.TypeOf(value)
@@ -804,11 +804,11 @@ func (d *DO) Updates(value interface{}) (info ResultInfo, err error) {
 		value = ptr.Interface()
 	}
 	result := tx.Updates(value)
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // UpdateColumn ...
-func (d *DO) UpdateColumn(column field.Expr, value interface{}) (info ResultInfo, err error) {
+func (d *DO) UpdateColumn(column field.Expr, value interface{}) ResultInfo {
 	tx := d.db.Model(d.newResultPointer())
 	columnStr := column.BuildColumn(d.db.Statement, field.WithoutQuote).String()
 
@@ -821,23 +821,23 @@ func (d *DO) UpdateColumn(column field.Expr, value interface{}) (info ResultInfo
 	default:
 		result = d.db.UpdateColumn(columnStr, value)
 	}
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // UpdateColumnSimple ...
-func (d *DO) UpdateColumnSimple(columns ...field.AssignExpr) (info ResultInfo, err error) {
+func (d *DO) UpdateColumnSimple(columns ...field.AssignExpr) ResultInfo {
 	if len(columns) == 0 {
-		return
+		return ResultInfo{}
 	}
 
 	result := d.db.Model(d.newResultPointer()).Clauses(d.assignSet(columns)).Omit("*").UpdateColumns(map[string]interface{}{})
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // UpdateColumns ...
-func (d *DO) UpdateColumns(value interface{}) (info ResultInfo, err error) {
+func (d *DO) UpdateColumns(value interface{}) ResultInfo {
 	result := d.db.Model(d.newResultPointer()).UpdateColumns(value)
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // assignSet fetch all set
@@ -860,7 +860,7 @@ func (d *DO) assignSet(exprs []field.AssignExpr) (set clause.Set) {
 }
 
 // Delete ...
-func (d *DO) Delete(models ...interface{}) (info ResultInfo, err error) {
+func (d *DO) Delete(models ...interface{}) ResultInfo {
 	var result *gorm.DB
 	if len(models) == 0 || reflect.ValueOf(models[0]).Len() == 0 {
 		result = d.db.Model(d.newResultPointer()).Delete(reflect.New(d.modelType).Interface())
@@ -872,7 +872,7 @@ func (d *DO) Delete(models ...interface{}) (info ResultInfo, err error) {
 		}
 		result = d.db.Delete(targets.Interface())
 	}
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 // Count ...
@@ -930,14 +930,14 @@ func (d *DO) AddError(err error) error {
 	return d.underlyingDB().AddError(err)
 }
 
-func (d *DO) InsertInto(table schema.Tabler, columns ...field.Expr) (ResultInfo, error) {
+func (d *DO) InsertInto(table schema.Tabler, columns ...field.Expr) ResultInfo {
 	colExpressions := make([]string, len(columns))
 	for index, column := range columns {
 		sql := column.BuildColumn(d.db.Statement, field.WithoutQuote).String()
 		colExpressions[index] = sql
 	}
 	result := d.underlyingDB().InsertInto(table, colExpressions...)
-	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}, result.Error
+	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
 func toColExprFullName(stmt *gorm.Statement, columns ...field.Expr) []string {

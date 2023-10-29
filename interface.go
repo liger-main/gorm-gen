@@ -73,20 +73,20 @@ type Dao interface {
 	FindInBatches(dest interface{}, batchSize int, fc func(tx Dao, batch int) error) error
 	FirstOrInit() (result interface{}, err error)
 	FirstOrCreate() (result interface{}, err error)
-	Update(column field.Expr, value interface{}) (info ResultInfo, err error)
-	UpdateSimple(columns ...field.AssignExpr) (info ResultInfo, err error)
-	Updates(values interface{}) (info ResultInfo, err error)
-	UpdateColumn(column field.Expr, value interface{}) (info ResultInfo, err error)
-	UpdateColumns(values interface{}) (info ResultInfo, err error)
-	UpdateColumnSimple(columns ...field.AssignExpr) (info ResultInfo, err error)
-	Delete(...interface{}) (info ResultInfo, err error)
+	Update(column field.Expr, value interface{}) ResultInfo
+	UpdateSimple(columns ...field.AssignExpr) ResultInfo
+	Updates(values interface{}) ResultInfo
+	UpdateColumn(column field.Expr, value interface{}) ResultInfo
+	UpdateColumns(values interface{}) ResultInfo
+	UpdateColumnSimple(columns ...field.AssignExpr) ResultInfo
+	Delete(...interface{}) ResultInfo
 	Count() (int64, error)
 	Row() *sql.Row
 	Rows() (*sql.Rows, error)
 	Scan(dest interface{}) error
 	Pluck(column field.Expr, dest interface{}) error
 	ScanRows(rows *sql.Rows, dest interface{}) error
-	InsertInto(table schema.Tabler, columns ...field.Expr) (info ResultInfo, err error)
+	InsertInto(table schema.Tabler, columns ...field.Expr) ResultInfo
 	FromValues(alias string, columns []string, values [][]interface{}) Dao
 	OnUniqueConflict(model interface{}, updates []OnConflictUpdate) Dao
 
