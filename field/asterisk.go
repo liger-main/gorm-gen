@@ -44,7 +44,7 @@ func (a Asterisk) Distinct() Asterisk {
 
 type asteriskExpr struct{ expr }
 
-func (e asteriskExpr) BuildWithArgs(*gorm.Statement) (query sql, args []interface{}) {
+func (e asteriskExpr) BuildWithArgs(*gorm.Statement, []interface{}) (query sql, args []interface{}) {
 	// if e.expr has no expression it must be directly calling for "*" or "xxx.*"
 	if e.e != nil {
 		return "?", []interface{}{e.e}

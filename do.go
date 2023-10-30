@@ -337,29 +337,46 @@ func (d *DO) Unscoped() Dao {
 }
 
 // Join ...
-func (d *DO) Join(table schema.Tabler, conds ...field.Expr) Dao {
+func (d *DO) Join(table schema.Tabler, conds ...Condition) Dao {
 	return d.join(table, clause.InnerJoin, conds)
 }
 
 // LeftJoin ...
-func (d *DO) LeftJoin(table schema.Tabler, conds ...field.Expr) Dao {
+func (d *DO) LeftJoin(table schema.Tabler, conds ...Condition) Dao {
 	return d.join(table, clause.LeftJoin, conds)
 }
 
 // RightJoin ...
-func (d *DO) RightJoin(table schema.Tabler, conds ...field.Expr) Dao {
+func (d *DO) RightJoin(table schema.Tabler, conds ...Condition) Dao {
 	return d.join(table, clause.RightJoin, conds)
 }
 
-func (d *DO) join(table schema.Tabler, joinType clause.JoinType, conds []field.Expr) Dao {
+func (d *DO) OuterJoin(table schema.Tabler, conds ...Condition) Dao {
+	return d.join(table, clause.OuterJoin, conds)
+}
+
+func (d *DO) join(table schema.Tabler, joinType clause.JoinType, conds []Condition) Dao {
 	if len(conds) == 0 {
 		return d.withError(ErrEmptyCondition)
 	}
 
+	exprs, err := condToExpression(conds)
+	if err != nil {
+		return d.withError(err)
+	}
 	join := clause.Join{
 		Type:  joinType,
 		Table: clause.Table{Name: table.TableName()},
-		ON:    clause.Where{Exprs: toExpression(conds...)},
+		ON:    clause.Where{Exprs: exprs},
+	}
+	if query, ok := table.(SubQuery); ok {
+		tablePlaceholder := "(?)"
+		do := query.underlyingDO()
+		if do.alias != "" {
+			tablePlaceholder += " AS " + do.Quote(do.alias)
+		}
+		expr := clause.Expr{SQL: tablePlaceholder, Vars: []interface{}{do.db.Table(do.TableName())}}
+		join.Expression = helper.NewJoinTblExpr(join, expr)
 	}
 	if do, ok := table.(Dao); ok {
 		join.Expression = helper.NewJoinTblExpr(join, Table(do).underlyingDB().Statement.TableExpr)

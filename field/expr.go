@@ -302,6 +302,10 @@ func (e expr) Desc() Expr {
 	return e.setE(clause.Expr{SQL: "? DESC", Vars: []interface{}{e.RawExpr()}})
 }
 
+func (e expr) Coalesce(col Expr) expr {
+	return e.coalesce(col.RawExpr())
+}
+
 // ======================== general experssion ========================
 func (e expr) value(value interface{}) AssignExpr {
 	return e.setE(clause.Eq{Column: e.col.Name, Value: value})
@@ -433,6 +437,10 @@ func (e expr) isPure() bool {
 
 func (e expr) ifNull(value interface{}) expr {
 	return e.setE(clause.Expr{SQL: "IFNULL(?,?)", Vars: []interface{}{e.RawExpr(), value}})
+}
+
+func (e expr) coalesce(value interface{}) expr {
+	return e.setE(clause.Expr{SQL: "COALESCE(?,?)", Vars: []interface{}{e.RawExpr(), value}})
 }
 
 func (e expr) field(value interface{}) expr {

@@ -165,9 +165,10 @@ type I{{.ModelStructName}}Do interface {
 	Order(conds ...field.Expr) I{{.ModelStructName}}Do
 	Distinct(cols ...field.Expr) I{{.ModelStructName}}Do
 	Omit(cols ...field.Expr) I{{.ModelStructName}}Do
-	Join(table schema.Tabler, on ...field.Expr) I{{.ModelStructName}}Do
-	LeftJoin(table schema.Tabler, on ...field.Expr) I{{.ModelStructName}}Do
-	RightJoin(table schema.Tabler, on ...field.Expr) I{{.ModelStructName}}Do
+	Join(table schema.Tabler, on ...gen.Condition) I{{.ModelStructName}}Do
+	LeftJoin(table schema.Tabler, on ...gen.Condition) I{{.ModelStructName}}Do
+	RightJoin(table schema.Tabler, on ...gen.Condition) I{{.ModelStructName}}Do
+	OuterJoin(table schema.Tabler, on ...gen.Condition) I{{.ModelStructName}}Do
 	Group(cols ...field.Expr) I{{.ModelStructName}}Do
 	Having(conds ...gen.Condition) I{{.ModelStructName}}Do
 	Limit(limit int) I{{.ModelStructName}}Do

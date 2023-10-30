@@ -48,9 +48,10 @@ type Dao interface {
 	Order(columns ...field.Expr) Dao
 	Distinct(columns ...field.Expr) Dao
 	Omit(columns ...field.Expr) Dao
-	Join(table schema.Tabler, conds ...field.Expr) Dao
-	LeftJoin(table schema.Tabler, conds ...field.Expr) Dao
-	RightJoin(table schema.Tabler, conds ...field.Expr) Dao
+	Join(table schema.Tabler, conds ...Condition) Dao
+	LeftJoin(table schema.Tabler, conds ...Condition) Dao
+	RightJoin(table schema.Tabler, conds ...Condition) Dao
+	OuterJoin(table schema.Tabler, conds ...Condition) Dao
 	Group(columns ...field.Expr) Dao
 	Having(conds ...Condition) Dao
 	Limit(limit int) Dao

@@ -85,16 +85,20 @@ func ({{.S}} {{.QueryStructName}}Do) Omit(cols ...field.Expr) {{.ReturnObject}} 
 	return {{.S}}.withDO({{.S}}.DO.Omit(cols...))
 }
 
-func ({{.S}} {{.QueryStructName}}Do) Join(table schema.Tabler, on ...field.Expr) {{.ReturnObject}} {
+func ({{.S}} {{.QueryStructName}}Do) Join(table schema.Tabler, on ...gen.Condition) {{.ReturnObject}} {
 	return {{.S}}.withDO({{.S}}.DO.Join(table, on...))
 }
 
-func ({{.S}} {{.QueryStructName}}Do) LeftJoin(table schema.Tabler, on ...field.Expr) {{.ReturnObject}} {
+func ({{.S}} {{.QueryStructName}}Do) LeftJoin(table schema.Tabler, on ...gen.Condition) {{.ReturnObject}} {
 	return {{.S}}.withDO({{.S}}.DO.LeftJoin(table, on...))
 }
 
-func ({{.S}} {{.QueryStructName}}Do) RightJoin(table schema.Tabler, on ...field.Expr) {{.ReturnObject}} {
+func ({{.S}} {{.QueryStructName}}Do) RightJoin(table schema.Tabler, on ...gen.Condition) {{.ReturnObject}} {
 	return {{.S}}.withDO({{.S}}.DO.RightJoin(table, on...))
+}
+
+func ({{.S}} {{.QueryStructName}}Do) OuterJoin(table schema.Tabler, on ...gen.Condition) {{.ReturnObject}} {
+	return {{.S}}.withDO({{.S}}.DO.OuterJoin(table, on...))
 }
 
 func ({{.S}} {{.QueryStructName}}Do) Group(cols ...field.Expr) {{.ReturnObject}} {

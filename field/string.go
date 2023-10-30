@@ -94,6 +94,10 @@ func (field String) IfNull(value string) Expr {
 	return field.ifNull(value)
 }
 
+func (field String) Coalesce(value Expr) String {
+	return String{expr: field.coalesce(value.RawExpr())}
+}
+
 // FindInSet equal to FIND_IN_SET(field_name, input_string_list)
 func (field String) FindInSet(targetList string) Expr {
 	return expr{e: clause.Expr{SQL: "FIND_IN_SET(?,?)", Vars: []interface{}{field.RawExpr(), targetList}}}
@@ -131,6 +135,10 @@ func (field String) Lower() String {
 // Upper converts a string to upper-case.
 func (field String) Upper() String {
 	return String{expr{e: clause.Expr{SQL: "UPPER(?)", Vars: []interface{}{field.RawExpr()}}}}
+}
+
+func (field String) ConvertToSQLAscii() String {
+	return String{expr{e: clause.Expr{SQL: "convert_to(?, 'SQL_ASCII')", Vars: []interface{}{field.RawExpr()}}}}
 }
 
 // Filed ...
