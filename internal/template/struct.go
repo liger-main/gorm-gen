@@ -75,7 +75,7 @@ const (
 		{{end}}
 	{{end}}
 
-	fieldMap  map[string]field.Expr
+	FieldMap  map[string]field.Expr
 `
 	tableMethod = `
 func ({{.S}} {{.QueryStructName}}) Table(newTableName string) *{{.QueryStructName}} { 
@@ -119,7 +119,7 @@ func ({{.S}} {{.QueryStructName}}) replaceDB(db *gorm.DB) {{.QueryStructName}} {
 `
 	getFieldMethod = `
 func ({{.S}} *{{.QueryStructName}}) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
-	_f, ok := {{.S}}.fieldMap[fieldName]
+	_f, ok := {{.S}}.FieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
 	}
@@ -135,10 +135,10 @@ func ({{.S}} *{{.QueryStructName}}) GetFieldByName(fieldName string) (field.Orde
 
 	fillFieldMapMethod = `
 func ({{.S}} *{{.QueryStructName}}) fillFieldMap() {
-	{{.S}}.fieldMap =  make(map[string]field.Expr, {{len .Fields}})
+	{{.S}}.FieldMap =  make(map[string]field.Expr, {{len .Fields}})
 	{{range .Fields -}}
 	{{if not .IsRelation -}}
-		{{- if .ColumnName -}}{{$.S}}.fieldMap["{{.ColumnName}}"] = {{$.S}}.{{.Name}}{{- end -}}
+		{{- if .ColumnName -}}{{$.S}}.FieldMap["{{.ColumnName}}"] = {{$.S}}.{{.Name}}{{- end -}}
 	{{end}}
 	{{end -}}
 }

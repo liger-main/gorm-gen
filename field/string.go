@@ -170,6 +170,10 @@ func (field String) MD5() String {
 	}}}
 }
 
+func (field String) IsDistinctFrom(other Expr) Expr {
+	return field.isDistinctFrom(other)
+}
+
 // Bytes []byte type field
 type Bytes String
 
