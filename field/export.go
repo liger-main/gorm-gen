@@ -29,6 +29,9 @@ var (
 // ======================== raw field =======================
 
 func NewRaw(raw interface{}, alias string) Field {
+	if alias == "" {
+		return Field{expr: expr{e: clause.Expr{SQL: "?", Vars: []interface{}{raw}}}}
+	}
 	return Field{expr: expr{e: clause.Expr{
 		SQL:  "? AS ?",
 		Vars: []interface{}{raw, clause.Column{Name: alias}},

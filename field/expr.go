@@ -121,7 +121,7 @@ const (
 )
 
 func (e expr) BuildColumn(stmt *gorm.Statement, opts ...BuildOpt) sql {
-	col := clause.Column{Name: e.col.Name}
+	col := clause.Column{Name: e.col.Name, Raw: e.col.Raw}
 	for _, opt := range append(e.buildOpts, opts...) {
 		switch opt {
 		case WithTable:
