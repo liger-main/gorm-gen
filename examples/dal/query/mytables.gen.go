@@ -124,15 +124,15 @@ func (m mytableDo) Omit(cols ...field.Expr) *mytableDo {
 	return m.withDO(m.DO.Omit(cols...))
 }
 
-func (m mytableDo) Join(table schema.Tabler, on ...field.Expr) *mytableDo {
+func (m mytableDo) Join(table schema.Tabler, on ...gen.Condition) *mytableDo {
 	return m.withDO(m.DO.Join(table, on...))
 }
 
-func (m mytableDo) LeftJoin(table schema.Tabler, on ...field.Expr) *mytableDo {
+func (m mytableDo) LeftJoin(table schema.Tabler, on ...gen.Condition) *mytableDo {
 	return m.withDO(m.DO.LeftJoin(table, on...))
 }
 
-func (m mytableDo) RightJoin(table schema.Tabler, on ...field.Expr) *mytableDo {
+func (m mytableDo) RightJoin(table schema.Tabler, on ...gen.Condition) *mytableDo {
 	return m.withDO(m.DO.RightJoin(table, on...))
 }
 
