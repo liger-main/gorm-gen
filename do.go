@@ -1058,6 +1058,14 @@ func toInterfaceSlice(value interface{}) []interface{} {
 //
 //	SELECT * FROM (SELECT `id`, `name` FROM `users_info` WHERE `age` > ?)"
 func Table(subQueries ...SubQuery) Dao {
+	return withMultipleTables(", ", "", subQueries...)
+}
+
+func Union(alias string, subQueries ...SubQuery) Dao {
+	return withMultipleTables(" UNION ", alias, subQueries...)
+}
+
+func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) Dao {
 	if len(subQueries) == 0 {
 		return &DO{}
 	}
@@ -1070,14 +1078,19 @@ func Table(subQueries ...SubQuery) Dao {
 		do := query.underlyingDO()
 		// ignore alias, or will misuse with sub query alias
 		tableExprs[i] = do.db.Table(do.TableName())
-		if do.alias != "" {
+		if do.alias != "" && singleAlias == "" {
 			tablePlaceholder[i] += " AS " + do.Quote(do.alias)
 		}
 	}
 
+	do := subQueries[0].underlyingDO()
+	tableName := strings.Join(tablePlaceholder, sep)
+	if singleAlias != "" {
+		tableName = fmt.Sprintf("( %s ) AS %s", tableName, do.Quote(singleAlias))
+	}
 	return &DO{
-		db: subQueries[0].underlyingDO().db.Session(&gorm.Session{NewDB: true}).
-			Table(strings.Join(tablePlaceholder, ", "), tableExprs...),
+		db: do.db.Session(&gorm.Session{NewDB: true}).
+			Table(tableName, tableExprs...),
 	}
 }
 
