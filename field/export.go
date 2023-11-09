@@ -44,7 +44,6 @@ func RawNowUnix(alias string) Field {
 
 func Column(table, column string, opts ...Option) Field {
 	col := clause.Column{Table: table, Name: column}
-	col.Raw = true
 	for _, opt := range opts {
 		col = opt(col)
 	}

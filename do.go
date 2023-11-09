@@ -1081,8 +1081,11 @@ func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) 
 		tablePlaceholder[i] = "(?)"
 
 		do := query.underlyingDO()
-		// ignore alias, or will misuse with sub query alias
-		tableExprs[i] = do.db.Table(do.TableName())
+		if do.TableName() != "" {
+			tableExprs[i] = do.db.Table(do.TableName())
+		} else {
+			tableExprs[i] = do.underlyingDB().Statement.TableExpr
+		}
 		if do.alias != "" && singleAlias == "" {
 			tablePlaceholder[i] += " AS " + do.Quote(do.alias)
 		}
@@ -1099,21 +1102,24 @@ func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) 
 	}
 }
 
-func Recursive(alias string, initialTerm SubQuery, recursiveTerm SubQuery, finalize SubQuery) Dao {
-	do := initialTerm.underlyingDO()
+func Recursive(alias string, terms []SubQuery, finalize SubQuery) Dao {
+	do := finalize.underlyingDO()
 
 	builder := strings.Builder{}
 	builder.WriteString("WITH RECURSIVE ")
 	builder.WriteString(do.Quote(alias))
 	builder.WriteString(" AS (")
-	builder.WriteString(" (?) ")
-	builder.WriteString(" UNION ")
-	builder.WriteString(" (?) ")
+	for i := range terms {
+		if i > 0 {
+			builder.WriteString(" UNION ")
+		}
+		builder.WriteString(" (?) ")
+	}
 	builder.WriteString(") ")
 	builder.WriteString("?")
 
-	exprs := make([]interface{}, 3)
-	for i, e := range []SubQuery{initialTerm, recursiveTerm, finalize} {
+	exprs := make([]interface{}, len(terms)+1)
+	for i, e := range append(terms[:], finalize) {
 		do := e.underlyingDO()
 		exprs[i] = do.db.Table(do.TableName())
 	}
