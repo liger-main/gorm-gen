@@ -212,7 +212,7 @@ func (d *DO) Or(conds ...Condition) Dao {
 	if len(exprs) == 0 {
 		return d
 	}
-	return d.getInstance(d.db.Clauses(clause.Where{Exprs: []clause.Expression{clause.Or(clause.And(exprs...))}}))
+	return d.getInstance(d.db.Clauses(clause.Where{Exprs: []clause.Expression{clause.Or(exprs...)}}))
 }
 
 // Select ...
