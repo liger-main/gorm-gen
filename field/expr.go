@@ -454,3 +454,18 @@ func (e expr) sum() expr {
 func (e expr) isDistinctFrom(other Expr) expr {
 	return e.setE(clause.Expr{SQL: "? IS DISTINCT FROM ?", Vars: []interface{}{e.RawExpr(), other.RawExpr()}})
 }
+
+func UnnestArray(exprs ...Expr) Expr {
+	builder := strings.Builder{}
+	builder.WriteString("UNNEST(ARRAY[")
+	vars := make([]interface{}, len(exprs))
+	for i, e := range exprs {
+		vars[i] = e.RawExpr()
+		if i > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString("?")
+	}
+	builder.WriteString("])")
+	return expr{e: clause.Expr{SQL: builder.String(), Vars: vars}}
+}
