@@ -375,10 +375,15 @@ func (d *DO) join(table schema.Tabler, joinType clause.JoinType, conds []Conditi
 		if do.alias != "" {
 			tablePlaceholder += " AS " + do.Quote(do.alias)
 		}
-		expr := clause.Expr{SQL: tablePlaceholder, Vars: []interface{}{do.db.Table(do.TableName())}}
+		var varExpr interface{}
+		if do.TableName() != "" {
+			varExpr = do.db.Table(do.TableName())
+		} else {
+			varExpr = do.underlyingDB().Statement.TableExpr
+		}
+		expr := clause.Expr{SQL: tablePlaceholder, Vars: []interface{}{varExpr}}
 		join.Expression = helper.NewJoinTblExpr(join, expr)
-	}
-	if do, ok := table.(Dao); ok {
+	} else if do, ok := table.(Dao); ok {
 		join.Expression = helper.NewJoinTblExpr(join, Table(do).underlyingDB().Statement.TableExpr)
 	}
 	if al, ok := table.(interface{ Alias() string }); ok {
@@ -1092,6 +1097,36 @@ func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) 
 		db: do.db.Session(&gorm.Session{NewDB: true}).
 			Table(tableName, tableExprs...),
 	}
+}
+
+func Recursive(alias string, initialTerm SubQuery, recursiveTerm SubQuery, finalize SubQuery) Dao {
+	do := initialTerm.underlyingDO()
+
+	builder := strings.Builder{}
+	builder.WriteString("WITH RECURSIVE ")
+	builder.WriteString(do.Quote(alias))
+	builder.WriteString(" AS (")
+	builder.WriteString(" (?) ")
+	builder.WriteString(" UNION ")
+	builder.WriteString(" (?) ")
+	builder.WriteString(") ")
+	builder.WriteString("?")
+
+	exprs := make([]interface{}, 3)
+	for i, e := range []SubQuery{initialTerm, recursiveTerm, finalize} {
+		do := e.underlyingDO()
+		exprs[i] = do.db.Table(do.TableName())
+	}
+
+	return &DO{
+		db: do.db.Session(&gorm.Session{NewDB: true}).
+			Table(builder.String(), exprs...),
+		alias: alias,
+	}
+}
+
+func FromTable(tableName string) clause.From {
+	return clause.From{Tables: []clause.Table{{Name: tableName}}}
 }
 
 // Exists EXISTS expression

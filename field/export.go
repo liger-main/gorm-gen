@@ -51,6 +51,11 @@ func Column(table, column string, opts ...Option) Field {
 	return Field{expr: expr{col: col}}
 }
 
+func StringColumn(table, column string) String {
+	col := clause.Column{Table: table, Name: column}
+	return String{expr: expr{col: col}}
+}
+
 func GenRandomUUID() Field {
 	return Field{expr: expr{e: clause.Expr{SQL: "gen_random_uuid()"}}}
 }
