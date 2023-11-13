@@ -64,6 +64,10 @@ func (field String) Like(value string) Expr {
 	return expr{e: clause.Like{Column: field.RawExpr(), Value: value}}
 }
 
+func (field String) LikeCol(col Expr) Expr {
+	return expr{e: clause.Like{Column: field.RawExpr(), Value: col.RawExpr()}}
+}
+
 // NotLike ...
 func (field String) NotLike(value string) Expr {
 	return expr{e: clause.Not(field.Like(value).expression())}
@@ -117,11 +121,11 @@ func (field String) Replace(from, to string) String {
 func (field String) Concat(before, after string) String {
 	switch {
 	case before != "" && after != "":
-		return String{expr{e: clause.Expr{SQL: "CONCAT(?,?,?)", Vars: []interface{}{before, field.RawExpr(), after}}}}
+		return String{expr{e: clause.Expr{SQL: "CONCAT(?::text,?,?::text)", Vars: []interface{}{before, field.RawExpr(), after}}}}
 	case before != "":
-		return String{expr{e: clause.Expr{SQL: "CONCAT(?,?)", Vars: []interface{}{before, field.RawExpr()}}}}
+		return String{expr{e: clause.Expr{SQL: "CONCAT(?::text,?)", Vars: []interface{}{before, field.RawExpr()}}}}
 	case after != "":
-		return String{expr{e: clause.Expr{SQL: "CONCAT(?,?)", Vars: []interface{}{field.RawExpr(), after}}}}
+		return String{expr{e: clause.Expr{SQL: "CONCAT(?,?::text)", Vars: []interface{}{field.RawExpr(), after}}}}
 	default:
 		return field
 	}

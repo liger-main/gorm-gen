@@ -79,8 +79,11 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx  {
 	}
 }
 
-func (q *Query) Transaction(fc func(tx *Query) error, opts ...*sql.TxOptions) error {
-	return q.db.Transaction(func(tx *gorm.DB) error { return fc(q.clone(tx)) }, opts...)
+func (q *Query) Transaction(fc func(tx *Query, txCtx context.Context) error, opts ...*sql.TxOptions) error {
+	return q.db.Transaction(func(tx *gorm.DB) error {
+		txCtx := gorm.ContextWithActiveTransaction(q.db.Statement.Context, tx.Statement.ConnPool)
+		return fc(q.clone(tx), txCtx)
+	}, opts...)
 }
 
 func (q *Query) Begin(opts ...*sql.TxOptions) *QueryTx {
