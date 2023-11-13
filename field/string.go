@@ -178,6 +178,11 @@ func (field String) IsDistinctFrom(other Expr) Expr {
 	return field.isDistinctFrom(other)
 }
 
+func (field String) SetTable(table string) String {
+	field.col.Table = table
+	return field
+}
+
 // Bytes []byte type field
 type Bytes String
 

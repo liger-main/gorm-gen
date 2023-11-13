@@ -469,3 +469,7 @@ func UnnestArray(exprs ...Expr) Expr {
 	builder.WriteString("])")
 	return expr{e: clause.Expr{SQL: builder.String(), Vars: vars}}
 }
+
+func (e expr) SP(spName string) Expr {
+	return e.setE(clause.Expr{SQL: fmt.Sprintf("%s(?)", spName), Vars: []interface{}{e.RawExpr()}})
+}

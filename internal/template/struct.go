@@ -197,6 +197,7 @@ type I{{.ModelStructName}}Do interface {
 	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
 	OnUniqueConflict(model interface{}, updates []gen.OnConflictUpdate) gen.Dao
 	Attrs(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
+	WithCTE(alias string, isRecursive bool, terms ...gen.SubQuery) I{{.ModelStructName}}Do
 	Assign(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	Joins(fields ...field.RelationField) I{{.ModelStructName}}Do
 	Preload(fields ...field.RelationField) I{{.ModelStructName}}Do

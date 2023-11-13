@@ -1408,6 +1408,11 @@ func (field Uint32) toSlice(values ...uint32) []interface{} {
 	return slice
 }
 
+func (field Uint32) SetTable(table string) Uint32 {
+	field.col.Table = table
+	return field
+}
+
 // Uint64 uint64 type field
 type Uint64 Int
 
@@ -1562,4 +1567,9 @@ func (field Uint64) toSlice(values ...uint64) []interface{} {
 		slice[i] = v
 	}
 	return slice
+}
+
+func (field Uint64) SetTable(table string) Uint64 {
+	field.col.Table = table
+	return field
 }

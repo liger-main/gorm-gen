@@ -366,22 +366,11 @@ func (d *DO) join(table schema.Tabler, joinType clause.JoinType, conds []Conditi
 	}
 	join := clause.Join{
 		Type:  joinType,
-		Table: clause.Table{Name: table.TableName()},
+		Table: clause.Table{Name: table.TableName(), Alias: table.Alias()},
 		ON:    clause.Where{Exprs: exprs},
 	}
 	if query, ok := table.(SubQuery); ok {
-		tablePlaceholder := "(?)"
-		do := query.underlyingDO()
-		if do.alias != "" {
-			tablePlaceholder += " AS " + do.Quote(do.alias)
-		}
-		var varExpr interface{}
-		if do.TableName() != "" {
-			varExpr = do.db.Table(do.TableName())
-		} else {
-			varExpr = do.underlyingDB().Statement.TableExpr
-		}
-		expr := clause.Expr{SQL: tablePlaceholder, Vars: []interface{}{varExpr}}
+		expr := subQueryToClauseExpr(query)
 		join.Expression = helper.NewJoinTblExpr(join, expr)
 	} else if do, ok := table.(Dao); ok {
 		join.Expression = helper.NewJoinTblExpr(join, Table(do).underlyingDB().Statement.TableExpr)
@@ -393,6 +382,41 @@ func (d *DO) join(table schema.Tabler, joinType clause.JoinType, conds []Conditi
 	from := getFromClause(d.db)
 	from.Joins = append(from.Joins, join)
 	return d.getInstance(d.db.Clauses(from))
+}
+
+func subQueryToClauseExpr(query SubQuery) clause.Expr {
+	tablePlaceholder := "(?)"
+	do := query.underlyingDO()
+	if do.alias != "" {
+		tablePlaceholder += " AS " + do.Quote(do.alias)
+	}
+	var varExpr interface{}
+	if do.TableName() != "" {
+		varExpr = do.db.Table(do.TableName())
+	} else {
+		varExpr = do.underlyingDB().Statement.TableExpr
+	}
+	expr := clause.Expr{SQL: tablePlaceholder, Vars: []interface{}{varExpr}}
+	return expr
+}
+
+func (d *DO) WithCTE(alias string, isRecursive bool, terms ...SubQuery) Dao {
+	exprs := make([]clause.Expression, len(terms))
+	for i, term := range terms {
+		exprs[i] = subQueryToClauseExpr(term)
+	}
+	cte := clause.CTE{
+		Alias:       alias,
+		Expressions: exprs,
+		IsRecursive: isRecursive,
+	}
+	var withClause clause.With
+	if existingWithClause, ok := d.db.Statement.Clauses["WITH"]; ok {
+		withClause.CommonTableExpressions = append(existingWithClause.Expression.(clause.With).CommonTableExpressions, cte)
+	} else {
+		withClause = clause.With{CommonTableExpressions: []clause.CTE{cte}}
+	}
+	return d.getInstance(d.db.Clauses(withClause))
 }
 
 // Attrs ...
@@ -1099,35 +1123,6 @@ func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) 
 	return &DO{
 		db: do.db.Session(&gorm.Session{NewDB: true}).
 			Table(tableName, tableExprs...),
-	}
-}
-
-func Recursive(alias string, terms []SubQuery, finalize SubQuery) Dao {
-	do := finalize.underlyingDO()
-
-	builder := strings.Builder{}
-	builder.WriteString("WITH RECURSIVE ")
-	builder.WriteString(do.Quote(alias))
-	builder.WriteString(" AS (")
-	for i := range terms {
-		if i > 0 {
-			builder.WriteString(" UNION ")
-		}
-		builder.WriteString(" (?) ")
-	}
-	builder.WriteString(") ")
-	builder.WriteString("?")
-
-	exprs := make([]interface{}, len(terms)+1)
-	for i, e := range append(terms[:], finalize) {
-		do := e.underlyingDO()
-		exprs[i] = do.db.Table(do.TableName())
-	}
-
-	return &DO{
-		db: do.db.Session(&gorm.Session{NewDB: true}).
-			Table(builder.String(), exprs...),
-		alias: alias,
 	}
 }
 
