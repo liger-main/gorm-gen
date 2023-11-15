@@ -324,6 +324,10 @@ func (e expr) add(value interface{}) expr {
 	}
 }
 
+func (e expr) addNextValue(sequenceName string) expr {
+	return e.setE(clause.Expr{SQL: "?+NEXTVAL(?)", Vars: []interface{}{e.RawExpr(), sequenceName}})
+}
+
 func (e expr) sub(value interface{}) expr {
 	switch v := value.(type) {
 	case time.Duration:

@@ -1325,6 +1325,13 @@ func (field Uint32) Sub(value uint32) Uint32 {
 	return Uint32{field.sub(value)}
 }
 
+func (field Uint32) AddOrSub(value int32) Uint32 {
+	if value < 0 {
+		return field.Sub(uint32(-1 * value))
+	}
+	return field.Add(uint32(value))
+}
+
 // Mul ...
 func (field Uint32) Mul(value uint32) Uint32 {
 	return Uint32{field.mul(value)}
@@ -1479,6 +1486,10 @@ func (field Uint64) NotLike(value uint64) Expr {
 // Add ...
 func (field Uint64) Add(value uint64) Uint64 {
 	return Uint64{field.add(value)}
+}
+
+func (field Uint64) AddNextValue(sequenceName string) Uint64 {
+	return Uint64{field.addNextValue(sequenceName)}
 }
 
 // Sub ...
