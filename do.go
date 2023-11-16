@@ -819,7 +819,12 @@ func (d *DO) UpdateSimple(columns ...field.AssignExpr) ResultInfo {
 		return ResultInfo{}
 	}
 
-	result := d.db.Model(d.newResultPointer()).Clauses(d.assignSet(columns)).Omit("*").Updates(map[string]interface{}{})
+	var value interface{}
+	if d.backfillData != nil {
+		value = d.backfillData
+	}
+
+	result := d.db.Model(d.newResultPointer()).Clauses(d.assignSet(columns)).Omit("*").Updates(value)
 	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
 }
 
