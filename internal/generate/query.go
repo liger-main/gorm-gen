@@ -58,8 +58,12 @@ func (b *QueryStructMeta) parseStruct(st interface{}) error {
 		fp = fps
 	}
 	for _, f := range stmt.Schema.Fields {
+		name := f.Name
+		if prefix, ok := f.TagSettings["EMBEDDEDPREFIX"]; ok && f.DBName != "" {
+			name = strings.Trim(strings.ToTitle(prefix[:1])+prefix[1:], "_") + name
+		}
 		b.appendOrUpdateField(&model.Field{
-			Name:          f.Name,
+			Name:          name,
 			Type:          b.getFieldRealType(f.FieldType),
 			ColumnName:    f.DBName,
 			CustomGenType: fp.GetFieldGenType(f),

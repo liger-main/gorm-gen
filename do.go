@@ -400,7 +400,15 @@ func subQueryToClauseExpr(query SubQuery) clause.Expr {
 	return expr
 }
 
-func (d *DO) WithCTE(alias string, isRecursive bool, terms ...SubQuery) Dao {
+func (d *DO) WithCTE(alias string, terms ...SubQuery) Dao {
+	return d.withCTE(alias, false, terms...)
+}
+
+func (d *DO) WithRecursiveCTE(alias string, terms ...SubQuery) Dao {
+	return d.withCTE(alias, true, terms...)
+}
+
+func (d *DO) withCTE(alias string, isRecursive bool, terms ...SubQuery) Dao {
 	exprs := make([]clause.Expression, len(terms))
 	for i, term := range terms {
 		exprs[i] = subQueryToClauseExpr(term)

@@ -191,8 +191,12 @@ func ({{.S}} {{.QueryStructName}}Do) Attrs(attrs ...field.AssignExpr) {{.ReturnO
 	return {{.S}}.withDO({{.S}}.DO.Attrs(attrs...))
 }
 
-func ({{.S}} {{.QueryStructName}}Do) WithCTE(alias string, isRecursive bool, terms ...gen.SubQuery) {{.ReturnObject}} {
-	return {{.S}}.withDO({{.S}}.DO.WithCTE(alias, isRecursive, terms...))
+func ({{.S}} {{.QueryStructName}}Do) WithCTE(alias string, terms ...gen.SubQuery) {{.ReturnObject}} {
+	return {{.S}}.withDO({{.S}}.DO.WithCTE(alias, terms...))
+}
+
+func ({{.S}} {{.QueryStructName}}Do) WithRecursiveCTE(alias string, terms ...gen.SubQuery) {{.ReturnObject}} {
+	return {{.S}}.withDO({{.S}}.DO.WithRecursiveCTE(alias, terms...))
 }
 
 func ({{.S}} {{.QueryStructName}}Do) Assign(attrs ...field.AssignExpr) {{.ReturnObject}} {
