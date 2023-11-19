@@ -63,7 +63,8 @@ type Dao interface {
 	Joins(field field.RelationField) Dao
 	Preload(field field.RelationField) Dao
 	Clauses(conds ...clause.Expression) Dao
-	WithCTE(alias string, isRecursive bool, terms ...SubQuery) Dao
+	WithCTE(alias string, terms ...SubQuery) Dao
+	WithRecursiveCTE(alias string, terms ...SubQuery) Dao
 
 	Create(value interface{}) error
 	CreateInBatches(value interface{}, batchSize int) error
