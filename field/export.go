@@ -50,6 +50,13 @@ func Column(table, column string, opts ...Option) Field {
 	return Field{expr: expr{col: col}}
 }
 
+func ColumnWithAlias(table, column, alias string) Field {
+	return Column(table, column, func(c clause.Column) clause.Column {
+		c.Alias = alias
+		return c
+	})
+}
+
 func StringColumn(table, column string) String {
 	col := clause.Column{Table: table, Name: column}
 	return String{expr: expr{col: col}}
