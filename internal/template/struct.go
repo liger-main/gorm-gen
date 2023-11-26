@@ -195,6 +195,7 @@ type I{{.ModelStructName}}Do interface {
 	UpdateColumns(value interface{}) gen.ResultInfo
 	UpdateFrom(q gen.SubQuery) gen.Dao
 	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
+	FromValuesSimple(alias string, dest interface{}) gen.Dao
 	OnUniqueConflict(model interface{}, updates []gen.OnConflictUpdate) gen.Dao
 	Attrs(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	WithCTE(alias string, terms ...gen.SubQuery) I{{.ModelStructName}}Do
@@ -208,7 +209,7 @@ type I{{.ModelStructName}}Do interface {
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Scan(result interface{}) (err error)
 	Returning(value interface{}, columns ...string) I{{.ModelStructName}}Do
-	InsertInto(table schema.Tabler, columns ...field.Expr) gen.ResultInfo
+	InsertInto(table schema.Tabler) gen.ResultInfo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 

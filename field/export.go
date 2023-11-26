@@ -38,8 +38,15 @@ func NewRaw(raw interface{}, alias string) Field {
 	}}}
 }
 
-func RawNowUnix(alias string) Field {
-	return NewRaw(time.Now().Unix(), alias)
+func NewRawAsCol(raw interface{}, aliasToField IColumnName) Field {
+	return Field{expr: expr{e: clause.Expr{
+		SQL:  "? AS ?",
+		Vars: []interface{}{raw, clause.Column{Name: aliasToField.ColumnName().String()}},
+	}}}
+}
+
+func RawNowUnix(col IColumnName) Field {
+	return NewRawAsCol(time.Now().Unix(), col)
 }
 
 func Column(table, column string, opts ...Option) Field {

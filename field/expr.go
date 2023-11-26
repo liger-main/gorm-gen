@@ -198,6 +198,10 @@ func (e expr) Count() Int {
 	return Int{e.setE(clause.Expr{SQL: "COUNT(?)", Vars: []interface{}{e.RawExpr()}})}
 }
 
+func (e expr) ArrayAgg() Expr {
+	return e.setE(clause.Expr{SQL: "ARRAY_AGG(?)", Vars: []interface{}{e.RawExpr()}})
+}
+
 func (e expr) Distinct() Int {
 	return Int{e.setE(clause.Expr{SQL: "DISTINCT ?", Vars: []interface{}{e.RawExpr()}})}
 }
@@ -296,6 +300,10 @@ func (e expr) As(alias string) Expr {
 	}
 	e.col.Alias = alias
 	return e
+}
+
+func (e expr) AsCol(col IColumnName) Expr {
+	return e.As(col.ColumnName().String())
 }
 
 func (e expr) Desc() Expr {

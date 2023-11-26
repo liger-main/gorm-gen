@@ -640,7 +640,26 @@ func (d *DO) clauseToSql(clause clause.Interface, truncateClauseName bool) strin
 }
 
 func (d *DO) FromValues(alias string, columns []string, values [][]interface{}) Dao {
+	parsedColumns := make([]clause.Column, len(columns))
+	for index, column := range columns {
+		parsedColumns[index] = clause.Column{Name: column}
+	}
+	return d.fromValues(alias, parsedColumns, values)
+}
 
+func (d *DO) FromValuesSimple(alias string, dest interface{}) Dao {
+	stmt := d.db.Session(&gorm.Session{Context: context.Background()}).Statement
+	stmt.Dest = dest
+	stmt.Model = dest
+	stmt.Selects = []string{"*"}
+	values := callbacks.ConvertToCreateValues(stmt)
+	if d.db.Error == gorm.ErrInvalidData {
+		d.db.Error = nil
+	}
+	return d.fromValues(alias, values.Columns, values.Values)
+}
+
+func (d *DO) fromValues(alias string, columns []clause.Column, values [][]interface{}) Dao {
 	valuesSql := d.clauseToSql(clause.Values{Values: values}, false)
 
 	var tableName strings.Builder
@@ -652,11 +671,8 @@ func (d *DO) FromValues(alias string, columns []string, values [][]interface{}) 
 	d.db.Statement.QuoteTo(&tableName, alias)
 
 	tableName.WriteString("(")
-	parsedColumns := make([]clause.Column, len(columns))
-	for index, column := range columns {
-		parsedColumns[index] = clause.Column{Name: column}
-	}
-	columnsList := d.clauseToSql(clause.Select{Columns: parsedColumns}, true)
+
+	columnsList := d.clauseToSql(clause.Select{Columns: columns}, true)
 	tableName.WriteString(columnsList)
 	tableName.WriteString(")")
 
@@ -989,14 +1005,37 @@ func (d *DO) AddError(err error) error {
 	return d.underlyingDB().AddError(err)
 }
 
-func (d *DO) InsertInto(table schema.Tabler, columns ...field.Expr) ResultInfo {
-	colExpressions := make([]string, len(columns))
-	for index, column := range columns {
-		sql := column.BuildColumn(d.db.Statement, field.WithoutQuote).String()
-		colExpressions[index] = sql
+func (d *DO) InsertInto(table schema.Tabler) ResultInfo {
+	selects := d.db.Statement.Selects
+	if len(selects) == 0 {
+		return ResultInfo{Error: fmt.Errorf("empty SELECT list")}
 	}
-	result := d.underlyingDB().InsertInto(table, colExpressions...)
+
+	var columns []string
+	if len(selects) > 1 || (!strings.Contains(selects[0], ",") && !strings.Contains(selects[0], "AS")) {
+		columns = make([]string, len(selects))
+		for i, col := range selects {
+			columns[i] = parseColumnName(col)
+		}
+	} else {
+		parts := strings.Split(selects[0], ",")
+		columns = make([]string, len(parts))
+		for i, part := range parts {
+			columns[i] = parseColumnName(part)
+		}
+	}
+
+	result := d.underlyingDB().InsertInto(table, columns...)
 	return ResultInfo{RowsAffected: result.RowsAffected, Error: result.Error}
+}
+
+func parseColumnName(sql string) string {
+	subparts := strings.Split(sql, " AS ")
+	name := subparts[len(subparts)-1]
+	subparts = strings.Split(name, ".")
+	name = subparts[len(subparts)-1]
+	name = strings.Trim(strings.TrimSpace(name), "\"")
+	return name
 }
 
 func toColExprFullName(stmt *gorm.Statement, columns ...field.Expr) []string {

@@ -266,8 +266,8 @@ func ({{.S}} {{.QueryStructName}}Do) Delete(models ...*{{.StructInfo.Package}}.{
 	return {{.S}}.DO.Delete(models)
 }
 
-func ({{.S}} {{.QueryStructName}}Do) InsertInto(table schema.Tabler, columns ...field.Expr) gen.ResultInfo {
-	return {{.S}}.DO.InsertInto(table, columns...)
+func ({{.S}} {{.QueryStructName}}Do) InsertInto(table schema.Tabler) gen.ResultInfo {
+	return {{.S}}.DO.InsertInto(table)
 }
 
 func ({{.S}} *{{.QueryStructName}}Do) withDO(do gen.Dao) (*{{.QueryStructName}}Do) {
