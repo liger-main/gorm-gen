@@ -27,6 +27,8 @@ const (
 
 	func ({{.S}} {{.QueryStructName}}) Columns(cols ...field.Expr) gen.Columns { return {{.S}}.{{.QueryStructName}}Do.Columns(cols...) }
 
+	func ({{.S}} {{.QueryStructName}}) AllColumnsForInsert() gen.Columns { return {{.S}}.{{.QueryStructName}}Do.AllColumnsForInsert({{.S}}.FieldMap) }
+
 	` + getFieldMethod + fillFieldMapMethod + cloneMethod + replaceMethod + relationship + defineMethodStruct
 
 	// TableQueryIface table query interface

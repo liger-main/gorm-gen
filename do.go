@@ -189,6 +189,18 @@ func (d *DO) Alias() string { return d.alias }
 // Columns return columns for Subquery
 func (*DO) Columns(cols ...field.Expr) Columns { return cols }
 
+func (d *DO) AllColumnsForInsert(fieldMap map[string]field.Expr) Columns {
+	var cols Columns
+	for _, f := range d.db.Statement.Schema.Fields {
+		if f, ok := d.db.Statement.Schema.FieldsByDBName[f.DBName]; ok {
+			if dbName, ok := fieldMap[f.DBName]; ok && (!f.HasDefaultValue || f.DefaultValueInterface != nil) {
+				cols = append(cols, dbName)
+			}
+		}
+	}
+	return cols
+}
+
 // ======================== chainable api ========================
 
 // Not ...
@@ -650,17 +662,14 @@ func (d *DO) FromValues(alias string, columns []string, values [][]interface{}) 
 func (d *DO) FromValuesSimple(alias string, dest interface{}) Dao {
 	stmt := d.db.Session(&gorm.Session{Context: context.Background()}).Statement
 	stmt.Dest = dest
-	stmt.Model = dest
+	stmt.ReflectValue = reflect.ValueOf(dest)
 	stmt.Selects = []string{"*"}
 	values := callbacks.ConvertToCreateValues(stmt)
-	if d.db.Error == gorm.ErrInvalidData {
-		d.db.Error = nil
-	}
 	return d.fromValues(alias, values.Columns, values.Values)
 }
 
 func (d *DO) fromValues(alias string, columns []clause.Column, values [][]interface{}) Dao {
-	valuesSql := d.clauseToSql(clause.Values{Values: values}, false)
+	valuesSql := d.clauseToSql(clause.Values{Values: values, DisableDefaultValues: true}, false)
 
 	var tableName strings.Builder
 	tableName.WriteString("( ")
@@ -1012,7 +1021,7 @@ func (d *DO) InsertInto(table schema.Tabler) ResultInfo {
 	}
 
 	var columns []string
-	if len(selects) > 1 || (!strings.Contains(selects[0], ",") && !strings.Contains(selects[0], "AS")) {
+	if len(selects) > 1 || !strings.Contains(selects[0], ",") {
 		columns = make([]string, len(selects))
 		for i, col := range selects {
 			columns[i] = parseColumnName(col)
@@ -1180,6 +1189,10 @@ func withMultipleTables(sep string, singleAlias string, subQueries ...SubQuery) 
 
 func FromTable(tableName string) clause.From {
 	return clause.From{Tables: []clause.Table{{Name: tableName}}}
+}
+
+func UpdateTable(tableName string) clause.Update {
+	return clause.Update{Table: clause.Table{Name: tableName}}
 }
 
 // Exists EXISTS expression

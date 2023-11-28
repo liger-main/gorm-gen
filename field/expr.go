@@ -30,6 +30,7 @@ type Expr interface {
 	RawExpr() expression
 
 	// col operate expression
+	SetCol(col Expr) AssignExpr
 	AddCol(col Expr) Expr
 	SubCol(col Expr) Expr
 	MulCol(col Expr) Expr
@@ -288,7 +289,7 @@ func (e expr) ConcatCol(cols ...Expr) Expr {
 		vars = append(vars, col.RawExpr())
 	}
 	return Field{e.setE(clause.Expr{
-		SQL:  fmt.Sprintf("Concat(%s)", strings.Join(placeholders, ",")),
+		SQL:  fmt.Sprintf("Concat(%s::text)", strings.Join(placeholders, ",")),
 		Vars: vars,
 	})}
 }
@@ -484,4 +485,8 @@ func UnnestArray(exprs ...Expr) Expr {
 
 func (e expr) SP(spName string) Expr {
 	return e.setE(clause.Expr{SQL: fmt.Sprintf("%s(?)", spName), Vars: []interface{}{e.RawExpr()}})
+}
+
+func Case(condition Expr, ifMet Expr, otherwise Expr) Expr {
+	return expr{e: clause.Expr{SQL: "CASE WHEN ? THEN ? ELSE ? END", Vars: []interface{}{condition.RawExpr(), ifMet.RawExpr(), otherwise.RawExpr()}}}
 }

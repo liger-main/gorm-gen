@@ -159,6 +159,13 @@ func (field String) SubstringIndex(delim string, count int) String {
 	}}}
 }
 
+func (field String) SplitPart(delim string, part int) String {
+	return String{expr{e: clause.Expr{
+		SQL:  fmt.Sprintf("SPLIT_PART(?,%q,%d)", delim, part),
+		Vars: []interface{}{field.RawExpr()},
+	}}}
+}
+
 func (field String) toSlice(values []string) []interface{} {
 	slice := make([]interface{}, len(values))
 	for i, v := range values {
