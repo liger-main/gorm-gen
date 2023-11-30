@@ -81,6 +81,13 @@ func (field Field) MD5() Expr {
 	}}}
 }
 
+func (field Field) ArrayAppend(other Expr) Expr {
+	return String{expr{e: clause.Expr{
+		SQL:  "ARRAY_APPEND(?, ?)",
+		Vars: []interface{}{field.RawExpr(), other.RawExpr()},
+	}}}
+}
+
 // Field ...
 func (field Field) Field(value []interface{}) Expr {
 	return field.field(value)
