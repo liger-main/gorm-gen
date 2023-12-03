@@ -2,6 +2,8 @@ package field
 
 import (
 	"database/sql/driver"
+	"fmt"
+	"strings"
 
 	"gorm.io/gorm/clause"
 )
@@ -86,6 +88,22 @@ func (field Field) ArrayAppend(other Expr) Expr {
 		SQL:  "ARRAY_APPEND(?, ?)",
 		Vars: []interface{}{field.RawExpr(), other.RawExpr()},
 	}}}
+}
+
+func (field Field) ArrayRemove(values ...string) AssignExpr {
+	if len(values) == 0 {
+		return field
+	}
+	valuesPlaceholder := strings.TrimSuffix(strings.Repeat("?,", len(values)), ",")
+	vars := make([]interface{}, len(values)+1)
+	vars[0] = field.RawExpr()
+	for i, v := range values {
+		vars[i+1] = v
+	}
+	return field.setE(clause.Eq{Column: field.col.Name, Value: clause.Expr{
+		SQL:  fmt.Sprintf("ARRAY(SELECT UNNEST(?) EXCEPT SELECT UNNEST(ARRAY[%s]))", valuesPlaceholder),
+		Vars: vars,
+	}})
 }
 
 // Field ...
