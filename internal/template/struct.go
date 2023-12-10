@@ -199,6 +199,7 @@ type I{{.ModelStructName}}Do interface {
 	FromValues(alias string, columns []string, values [][]interface{}) gen.Dao
 	FromValuesSimple(alias string, dest interface{}) gen.Dao
 	OnUniqueConflict(model interface{}, updates []gen.OnConflictUpdate) gen.Dao
+	OnUniqueConflictDoNothing(model interface{}) gen.Dao
 	Attrs(attrs ...field.AssignExpr) I{{.ModelStructName}}Do
 	WithCTE(alias string, terms ...gen.SubQuery) I{{.ModelStructName}}Do
 	WithRecursiveCTE(alias string, terms ...gen.SubQuery) I{{.ModelStructName}}Do

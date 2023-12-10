@@ -93,6 +93,7 @@ type Dao interface {
 	FromValues(alias string, columns []string, values [][]interface{}) Dao
 	FromValuesSimple(alias string, dest interface{}) Dao
 	OnUniqueConflict(model interface{}, updates []OnConflictUpdate) Dao
+	OnUniqueConflictDoNothing(model interface{}) Dao
 
 	AddError(err error) error
 }
