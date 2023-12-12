@@ -784,6 +784,11 @@ func (field Int64) toSlice(values ...int64) []interface{} {
 	return slice
 }
 
+func (field Int64) SetTable(table string) Int64 {
+	field.col.Table = table
+	return field
+}
+
 // Uint uint type field
 type Uint Int
 
