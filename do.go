@@ -1041,7 +1041,7 @@ func (d *DO) InsertInto(table schema.Tabler) ResultInfo {
 	}
 
 	var columns []string
-	if len(selects) > 1 || !strings.Contains(selects[0], ",") {
+	if (len(selects) > 1 || !strings.Contains(selects[0], ",")) && !strings.Contains(selects[0], "$1") {
 		columns = make([]string, len(selects))
 		for i, col := range selects {
 			columns[i] = parseColumnName(col)

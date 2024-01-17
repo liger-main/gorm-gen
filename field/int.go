@@ -696,6 +696,10 @@ func (field Int64) Add(value int64) Int64 {
 	return Int64{field.add(value)}
 }
 
+func (field Int64) AddNextValue(sequenceName string) Int64 {
+	return Int64{field.addNextValue(sequenceName)}
+}
+
 // Sub ...
 func (field Int64) Sub(value int64) Int64 {
 	return Int64{field.sub(value)}
