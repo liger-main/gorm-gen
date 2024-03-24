@@ -145,8 +145,8 @@ func (field String) ConvertToSQLAscii() String {
 	return String{expr{e: clause.Expr{SQL: "convert_to(?, 'SQL_ASCII')", Vars: []interface{}{field.RawExpr()}}}}
 }
 
-// Filed ...
-func (field String) Filed(values ...string) String {
+// Field ...
+func (field String) Field(values ...string) String {
 	return String{field.field(values)}
 }
 
@@ -298,8 +298,8 @@ func (field Bytes) Upper() String {
 	return String{expr{e: clause.Expr{SQL: "UPPER(?)", Vars: []interface{}{field.RawExpr()}}}}
 }
 
-// Filed ...
-func (field Bytes) Filed(values ...[]byte) Bytes {
+// Field ...
+func (field Bytes) Field(values ...[]byte) Bytes {
 	return Bytes{field.field(values)}
 }
 

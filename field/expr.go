@@ -51,6 +51,7 @@ type Expr interface {
 type OrderExpr interface {
 	Expr
 	Desc() Expr
+	Asc() Expr
 }
 
 type expression interface{}
@@ -309,6 +310,10 @@ func (e expr) AsCol(col IColumnName) Expr {
 
 func (e expr) Desc() Expr {
 	return e.setE(clause.Expr{SQL: "? DESC", Vars: []interface{}{e.RawExpr()}})
+}
+
+func (e expr) Asc() Expr {
+	return e.setE(clause.Expr{SQL: "? ASC", Vars: []interface{}{e.RawExpr()}})
 }
 
 func (e expr) Coalesce(col Expr) expr {
